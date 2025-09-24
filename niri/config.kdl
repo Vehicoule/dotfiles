@@ -6,14 +6,12 @@ cursor {
 }
 
 environment {
-        DISPLAY ":0"
+        DISPLAY ":1"
         ELECTRON_OZONE_PLATFORM_HINT "auto"
         QT_QPA_PLATFORM "wayland"
         QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
         XDG_SESSION_TYPE "wayland"
         XDG_CURRENT_DESKTOP "niri"
-        GTK_THEME "Adwaita"
-	en_US.UTF-8
     }
 
 input {
@@ -45,9 +43,7 @@ input {
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 output "DP-1" {
     mode "2560x1440@239.992"
-    scale 1.0
-    transform "normal"
-    position x=0 y=0
+    scale 1
 }
 
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
@@ -156,76 +152,64 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 // The wiki explains how to configure individual animations:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Animations
 animations {
-    // Uncomment to turn off all animations.
-    // off
-
-    // Slow down all animations by this factor. Values below 1 speed them up instead.
-    // slowdown 3.0
+    workspace-switch {
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+    }
+    window-open {
+        duration-ms 200
+        curve "ease-out-quad"
+    }
+    window-close {
+        duration-ms 200
+        curve "ease-out-cubic"
+    }
+    horizontal-view-movement {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+    }
+    window-movement {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
+    window-resize {
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+    }
+    config-notification-open-close {
+        spring damping-ratio=0.6 stiffness=1200 epsilon=0.001
+    }
+    screenshot-ui-open {
+        duration-ms 300
+        curve "ease-out-quad"
+    }
+    overview-open-close {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+    }
 }
 
-// Open the zen picture-in-picture player as floating by default.
 window-rule {
-    match app-id=r#"^firefox$"#
-    open-on-workspace "browser"
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true // Always float Firefox PiP windows
+}
 
-}
 window-rule {
-    match app-id=r#"^firefox$"# title="^Picture-in-Picture$"
-    open-floating true
+    geometry-corner-radius 20 // Set every window radius to 20
+    clip-to-geometry true
 }
+
 window-rule {
     match title="^*-float$"
     open-floating true
     default-column-width  { fixed 1280; }
     default-window-height { fixed 720; }
 }
-window-rule {
-    match app-id=r#"^io\.missioncenter\.MissionCenter$"#
-    match app-id=r#"^org\.gnome\.Nautilus$"#
-    match app-id=r#"^org\.pipewire\.Helvum$"#
-    match app-id=r#"^com\.saivert\.pwvucontrol$"#
 
-    open-floating true
-    default-column-width  { fixed 1280; }
-    default-window-height { fixed 720; }
-}
-
-window-rule {
-    match app-id=r#"^org\.gnome\.Calculator$"#
-
-    open-floating true
-    default-column-width  { fixed 400; }
-    default-window-height { fixed 656; }
-}
-window-rule {
-    match app-id=r#"^org\.gnome\.World\.Secrets$"#
-    block-out-from "screen-capture"
-}
-
-// Example: enable rounded corners for all windows.
-// (This example rule is commented out with a "/-" in front.)
 window-rule {
     geometry-corner-radius 15
     clip-to-geometry true
 }
 
 binds {
-    // Keys consist of modifiers separated by + signs, followed by an XKB key name
-    // in the end. To find an XKB name for a particular key, you may use a program
-    // like wev.
-    //
-    // "Mod" is a special modifier equal to Super when running on a TTY, and to Alt
-    // when running as a winit window.
-    //
-    // Most actions that you can bind here can also be invoked programmatically with
-    // `niri msg action do-something`.
-
-    // Mod-Shift-/, which is usually the same as Mod-?,
-    // shows a list of important hotkeys.
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // Suggested binds for running programs: terminal, app launcher, screen locker.
-    Mod+T             hotkey-overlay-title="Open a Terminal: foot"                  { spawn "ghostty"; }
+    Mod+Return             hotkey-overlay-title="Open a Terminal: foot"                  { spawn "ghostty"; }
     Mod+Space         hotkey-overlay-title="Run an Application: fuzzel"             { spawn "fuzzel"; }
     Mod+B       hotkey-overlay-title="Open a Browser: firefox"                   { spawn "firefox" "about:newtab"; }
 
@@ -390,12 +374,12 @@ hotkey-overlay {
     skip-at-startup
 }
 
-workspace "dev"
-workspace "browser"
-workspace "chat"
+//workspace "dev"
+//workspace "browser"
+//workspace "chat"
 
 spawn-sh-at-startup "/usr/lib/polkit-kde-authentication-agent-1 &"
-spawn-at-startup "pipewire"
+//spawn-at-startup "pipewire"
 
 spawn-at-startup "swww-daemon"
 spawn-sh-at-startup "swww img $(find /home/boink/Pictures/Wallpapers -type f | shuf -n 1)"
